@@ -1,0 +1,319 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Summary: Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .video-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .video-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .meta-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .meta-label {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .meta-value {
+            color: #555;
+            margin-top: 5px;
+        }
+        
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .section-title {
+            font-size: 2em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            margin: 10px auto;
+            border-radius: 2px;
+        }
+        
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .topic-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .topic-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .topic-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .qa-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 3px solid #28a745;
+        }
+        
+        .question {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .answer {
+            color: #555;
+            line-height: 1.5;
+        }
+        
+        .explanation {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 3px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .explanation-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .explanation-content {
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .video-embed {
+            width: 100%;
+            max-width: 800px;
+            height: 450px;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .topic-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+        
+        .topic-link:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+        
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 40px;
+            font-size: 0.9em;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .video-title {
+                font-size: 1.8em;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="video-title">Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)</h1>
+            <div class="video-meta">
+                <div class="meta-item">
+                    <div class="meta-label">Duration</div>
+                    <div class="meta-value">3:33</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Uploader</div>
+                    <div class="meta-value">Rick Astley</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Views</div>
+                    <div class="meta-value">1,695,949,334</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Upload Date</div>
+                    <div class="meta-value">20091025</div>
+                </div>
+            </div>
+            
+            <!-- Video Embed -->
+            <iframe class="video-embed" 
+                    src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                    title="Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)"
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+            </iframe>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">🎯 Key Topics</h2>
+            <div class="topics-grid">
+
+                <div class="topic-card">
+                    <div class="topic-title">
+                        <a href="#explanation-1" class="topic-link">1. Commitment and Relationships - Discusses the importance of being fully committed in a relationship and the emotional investment involved.</a>
+                    </div>
+                </div>
+
+                <div class="topic-card">
+                    <div class="topic-title">
+                        <a href="#explanation-2" class="topic-link">2. Emotional Expression - Highlights the challenge of expressing emotions in a relationship, with a focus on understanding and communicating feelings.</a>
+                    </div>
+                </div>
+
+                <div class="topic-card">
+                    <div class="topic-title">
+                        <a href="#explanation-3" class="topic-link">3. Trust and Reliability - Emphasizes trust as the foundation of a relationship, with promises of not letting the partner down or causing harm.</a>
+                    </div>
+                </div>
+
+                <div class="topic-card">
+                    <div class="topic-title">
+                        <a href="#explanation-4" class="topic-link">4. Overcoming Vulnerability - Explores how individuals may hesitate to vocalize their feelings due to vulnerability, despite a deep mutual understanding.</a>
+                    </div>
+                </div>
+
+                <div class="topic-card">
+                    <div class="topic-title">
+                        <a href="#explanation-5" class="topic-link">5. Assurance and Loyalty - Provides a repeated assurance of loyalty and devotion, promising never to desert or hurt the partner.</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">❓ Questions & Answers</h2>
+
+            <div class="qa-item">
+                <div class="question">Q1: What does the phrase "A full commitment's what I'm thinking of" in the transcript imply about the nature of commitment in relationships?</div>
+                <div class="answer">A1: The phrase "A full commitment's what I'm thinking of" signifies the importance of being thoroughly devoted to a relationship. It highlights that true commitment involves a conscious decision to fully engage emotionally and physically with a partner, indicating the readiness to invest in the relationship wholeheartedly.</div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">Q2: How does the repeated reassurance in the lyrics contribute to understanding commitment in relationships?</div>
+                <div class="answer">A2: The repeated reassurances like "Never gonna give you up, Never gonna let you down" emphasize the constancy and reliability expected in committed relationships. This repetition reinforces the notion that a true commitment means being there for your partner consistently, not abandoning or betraying them, and providing emotional security and stability.</div>
+            </div>
+
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">💡 Friendly Explanations</h2>
+
+            <div class="explanation" id="explanation-1">
+                <div class="explanation-title">Topic 1: Commitment and Relationships - Discusses the importance of being fully committed in a relationship and the emotional investment involved.</div>
+                <div class="explanation-content">Imagine you're building a house with someone special; that's kind of what a committed relationship is like. The song in the video talks about being 'never gonna give you up,' which means being dedicated and not walking away when things get tough. Commitment in a relationship is like deciding to stick with building that house together, no matter how challenging the weather gets. It's about saying, 'I'm here with you, and I'm not going to run off or let you down because we're in this together.'
+
+Being fully committed also means being emotionally invested, just like you invest time and effort into a hobby you love. In relationships, this emotional investment is what helps you understand and support each other. The lyrics highlight the importance of understanding feelings and making sure your partner knows you're always there for them. Like when you look out for a friend, working towards maintaining the bond you share helps make the relationship stronger. After all, the song repeats that commitment repeatedly, emphasizing that being present and truthful is key to not hurting each other. So, it's about holding onto that promise of support and love, much like how two best friends would always have each other's backs.</div>
+            </div>
+
+            <div class="explanation" id="explanation-2">
+                <div class="explanation-title">Topic 2: Emotional Expression - Highlights the challenge of expressing emotions in a relationship, with a focus on understanding and communicating feelings.</div>
+                <div class="explanation-content">Hey there! So, let's talk about how emotional expression can be quite a tricky thing in relationships. You know how sometimes you feel something really deeply, but it's hard to put it into words or you're just too shy to share it? That's a pretty common challenge. It's like having a beautiful painting in your head, but you're struggling to describe it to someone else. In a relationship, being open about your feelings is super important because it helps both partners understand and support each other better.
+
+Think about it like trying to solve a puzzle together. Each piece represents a part of your emotions. If you don't communicate and share your pieces, it'll be hard for your partner to see the full picture. Just like the lyrics in songs can express emotions in a catchy and clear way, finding simple and honest ways to share how you feel can make all the difference. For example, saying 'I feel worried when...' or 'I'm really happy about...' can open up a conversation and help you connect on a deeper level. Remember, it's all about making sure both of you understand each other's feelings, so your relationship can grow stronger!</div>
+            </div>
+
+        </div>
+        
+        <div class="footer">
+            <p>Generated on September 22, 2025 at 02:19 PM</p>
+            <p>Created with PocketFlow YouTube Summarizer</p>
+        </div>
+    </div>
+</body>
+</html>

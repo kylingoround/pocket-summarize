@@ -1,16 +1,47 @@
 from pocketflow import Flow
-from nodes import GetQuestionNode, AnswerNode
+from nodes import (
+    ExtractVideoDataNode,
+    ExtractTopicsNode, 
+    ProcessTopicsBatch,
+    CombineResults,
+    GenerateHTMLNode
+)
 
-def create_qa_flow():
-    """Create and return a question-answering flow."""
+def create_youtube_summarizer_flow():
+    """Create and return a YouTube video summarizer flow."""
+    
     # Create nodes
-    get_question_node = GetQuestionNode()
-    answer_node = AnswerNode()
+    extract_data = ExtractVideoDataNode()
+    extract_topics = ExtractTopicsNode()
+    process_topics = ProcessTopicsBatch()
+    combine_results = CombineResults()
+    generate_html = GenerateHTMLNode()
     
-    # Connect nodes in sequence
-    get_question_node >> answer_node
+    # Connect nodes in sequence with Map Reduce pattern
+    extract_data >> extract_topics >> process_topics >> combine_results >> generate_html
     
-    # Create flow starting with input node
-    return Flow(start=get_question_node)
+    # Create flow starting with data extraction
+    return Flow(start=extract_data)
 
-qa_flow = create_qa_flow()
+if __name__ == "__main__":
+    # Test the flow
+    flow = create_youtube_summarizer_flow()
+    
+    # Example shared store
+    shared = {
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",  # Rick Roll for testing
+        "video_metadata": {},
+        "transcript": "",
+        "topics": [],
+        "topic_results": [],
+        "combined_summary": {},
+        "html_file_path": ""
+    }
+    
+    print("Running YouTube Summarizer Flow...")
+    flow.run(shared)
+    
+    print(f"Video Title: {shared['video_metadata'].get('title', 'Unknown')}")
+    print(f"Topics Found: {len(shared['topics'])}")
+    print(f"Q&A Pairs: {len(shared['combined_summary'].get('all_qa_pairs', []))}")
+    print(f"HTML Generated: {shared['html_file_path']}")
