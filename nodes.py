@@ -3,8 +3,38 @@ from utils.call_llm import call_llm
 from utils.youtube_metadata import get_video_metadata
 from utils.transcriber import get_youtube_transcript
 from utils.html_generator import generate_html
+from utils.text_splitter import split_text_into_chunks, DEFAULT_MAX_CHARS_PER_CHUNK
 import json
 import re
+
+
+MAX_CHARS_PER_CHUNK = DEFAULT_MAX_CHARS_PER_CHUNK
+MAX_TOPIC_CHUNKS = 2
+MAX_TOPIC_CONTEXT_CHARS = MAX_CHARS_PER_CHUNK * MAX_TOPIC_CHUNKS
+
+
+def build_topic_context(topic, transcript_chunks, max_chunks=MAX_TOPIC_CHUNKS):
+    """Return concatenated transcript chunks relevant to ``topic`` within bounds."""
+    if not transcript_chunks:
+        return ""
+
+    topic_lower = topic.lower()
+    matching_chunks = []
+    for chunk in transcript_chunks:
+        if topic_lower in chunk.lower():
+            matching_chunks.append(chunk)
+        if len(matching_chunks) >= max_chunks:
+            break
+
+    if not matching_chunks:
+        matching_chunks = transcript_chunks[:max_chunks]
+
+    context = "\n\n".join(matching_chunks[:max_chunks]).strip()
+
+    if len(context) > MAX_TOPIC_CONTEXT_CHARS:
+        raise ValueError("Topic context exceeds maximum allowed characters for prompts")
+
+    return context
 
 class ExtractVideoDataNode(Node):
     """Extract video metadata and transcript from YouTube URL."""
@@ -18,75 +48,32 @@ class ExtractVideoDataNode(Node):
         
         # Get transcript
         transcript = get_youtube_transcript(youtube_url)
-        
+        transcript_chunks = split_text_into_chunks(transcript, max_chars=MAX_CHARS_PER_CHUNK)
+
         return {
             "video_metadata": video_metadata,
-            "transcript": transcript
+            "transcript": transcript,
+            "transcript_chunks": transcript_chunks
         }
-    
+
     def post(self, shared, prep_res, exec_res):
         shared["video_metadata"] = exec_res["video_metadata"]
         shared["transcript"] = exec_res["transcript"]
+        shared["transcript_chunks"] = exec_res["transcript_chunks"]
         return "default"
 
 class ExtractTopicsNode(Node):
     """Use LLM to identify interesting topics from transcript."""
-    
+
     def prep(self, shared):
-        return shared["transcript"]
-    
-    def exec(self, transcript):
-        prompt = f"""
-Analyze the following video transcript and identify the 5 most interesting and important topics discussed.
+        return {
+            "transcript_chunks": shared.get("transcript_chunks", [])
+        }
 
-Transcript:
-{transcript}
+    def exec(self, data):
+        transcript_chunks = data.get("transcript_chunks", [])
 
-Please return your response in the following JSON format:
-{{
-    "topics": [
-        "Topic 1: Brief description",
-        "Topic 2: Brief description", 
-        "Topic 3: Brief description",
-        "Topic 4: Brief description",
-        "Topic 5: Brief description"
-    ]
-}}
-
-Focus on:
-- Main themes and concepts
-- Key insights or lessons
-- Important facts or data points
-- Practical advice or tips
-- Interesting stories or examples
-
-Make sure each topic is distinct and meaningful.
-"""
-        
-        response = call_llm(prompt)
-        
-        # Extract JSON from response
-        try:
-            # Find JSON in the response
-            json_match = re.search(r'\{.*\}', response, re.DOTALL)
-            if json_match:
-                json_str = json_match.group(0)
-                result = json.loads(json_str)
-                return result["topics"]
-            else:
-                # Fallback: try to extract topics from text
-                lines = response.split('\n')
-                topics = []
-                for line in lines:
-                    line = line.strip()
-                    if line and (line.startswith('-') or line.startswith('•') or line.startswith('*')):
-                        topic = line.lstrip('-•* ').strip()
-                        if topic:
-                            topics.append(topic)
-                return topics[:5]  # Limit to 5 topics
-        except Exception as e:
-            print(f"Error parsing topics: {e}")
-            # Fallback: return generic topics
+        if not transcript_chunks:
             return [
                 "Main topic discussed in the video",
                 "Key insights and lessons",
@@ -94,7 +81,108 @@ Make sure each topic is distinct and meaningful.
                 "Practical advice and tips",
                 "Interesting examples and stories"
             ]
-    
+
+        candidate_topics = []
+
+        for index, chunk in enumerate(transcript_chunks, start=1):
+            if len(chunk) > MAX_CHARS_PER_CHUNK:
+                raise ValueError("Transcript chunk exceeds configured maximum size")
+
+            prompt = f"""
+Analyze the following portion of a video transcript. List up to three of the most interesting or important topics mentioned in this portion.
+
+Transcript chunk {index}:
+{chunk}
+
+Return your answer in JSON with the following structure:
+{{
+    "candidate_topics": [
+        "Topic name: one sentence explanation"
+    ]
+}}
+"""
+
+            response = call_llm(prompt)
+
+            try:
+                json_match = re.search(r'\{.*\}', response, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(0)
+                    result = json.loads(json_str)
+                    chunk_topics = result.get("candidate_topics", [])
+                else:
+                    chunk_topics = [line.lstrip('-•* ').strip() for line in response.split('\n') if line.strip()]
+                candidate_topics.extend([topic for topic in chunk_topics if topic])
+            except Exception as e:
+                print(f"Error parsing topics for chunk {index}: {e}")
+
+        if not candidate_topics:
+            return [
+                "Main topic discussed in the video",
+                "Key insights and lessons",
+                "Important facts and data",
+                "Practical advice and tips",
+                "Interesting examples and stories"
+            ]
+
+        normalized_topics = []
+        for topic in candidate_topics:
+            normalized = topic.lower().strip()
+            normalized_topics.append((normalized, topic))
+
+        # Keep the first occurrence formatting for each normalized topic
+        unique_topics = {}
+        for normalized, original in normalized_topics:
+            unique_topics.setdefault(normalized, original)
+
+        candidate_lines = []
+        current_length = 0
+        for topic_value in unique_topics.values():
+            line = f"- {topic_value}"
+            if current_length + len(line) + 1 > MAX_CHARS_PER_CHUNK:
+                break
+            candidate_lines.append(line)
+            current_length += len(line) + 1
+
+        if not candidate_lines and unique_topics:
+            first_topic = next(iter(unique_topics.values()))
+            candidate_lines.append(f"- {first_topic}")
+
+        candidate_summary = "\n".join(candidate_lines)
+
+        final_prompt = f"""
+You are given candidate topics extracted from individual chunks of a video transcript. Select the five topics that best capture the overall video.
+
+Candidate topics:
+{candidate_summary}
+
+Return the final topics in JSON format as:
+{{
+    "topics": [
+        "Topic 1: Brief description",
+        "Topic 2: Brief description",
+        "Topic 3: Brief description",
+        "Topic 4: Brief description",
+        "Topic 5: Brief description"
+    ]
+}}
+"""
+
+        response = call_llm(final_prompt)
+
+        try:
+            json_match = re.search(r'\{.*\}', response, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(0)
+                result = json.loads(json_str)
+                topics = result.get("topics", [])
+            else:
+                topics = [line.lstrip('-•* ').strip() for line in response.split('\n') if line.strip()]
+            return topics[:5]
+        except Exception as e:
+            print(f"Error parsing final topics: {e}")
+            return list(unique_topics.values())[:5]
+
     def post(self, shared, prep_res, exec_res):
         shared["topics"] = exec_res
         return "default"
@@ -103,22 +191,25 @@ class ProcessTopicsBatch(BatchNode):
     """Map each topic individually to generate Q&A pairs and explanations."""
     
     def prep(self, shared):
-        # Return topics with transcript for batch processing
-        transcript = shared["transcript"]
+        # Return topics with transcript chunks for batch processing
+        transcript_chunks = shared.get("transcript_chunks", [])
         topics = shared["topics"]
-        # Return list of tuples (topic, transcript) for each topic
-        return [(topic, transcript) for topic in topics]
-    
+        return [(topic, transcript_chunks) for topic in topics]
+
     def exec(self, topic_data):
         # Process ONE topic at a time
-        topic, transcript = topic_data
-        
+        topic, transcript_chunks = topic_data
+        context_text = build_topic_context(topic, transcript_chunks)
+
+        if not context_text:
+            context_text = "Transcript unavailable. Provide helpful content based on the topic title only."
+
         # Generate Q&A pairs for this specific topic
         qa_prompt = f"""
 Based on the following video transcript, create 2-3 thoughtful questions and answers specifically for this topic: "{topic}"
 
 Transcript:
-{transcript}
+{context_text}
 
 Please return your response in the following JSON format:
 {{
@@ -143,13 +234,13 @@ Guidelines:
 """
         
         qa_response = call_llm(qa_prompt)
-        
+
         # Generate explanation for this specific topic
         explanation_prompt = f"""
 Based on the following video transcript, create a friendly, accessible explanation specifically for this topic: "{topic}"
 
 Transcript:
-{transcript}
+{context_text}
 
 Please return your response in the following JSON format:
 {{
