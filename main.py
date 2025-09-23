@@ -28,7 +28,9 @@ def main():
     
     try:
         flow = create_youtube_summarizer_flow()
+        print("🚀 Starting flow execution...")
         flow.run(shared)
+        print("✅ Flow execution completed successfully!")
         
         # Display results
         print("✅ Summary Complete!")

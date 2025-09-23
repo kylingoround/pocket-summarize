@@ -10,10 +10,10 @@ from nodes import (
 def create_youtube_summarizer_flow():
     """Create and return a YouTube video summarizer flow."""
     
-    # Create nodes
+    # Create nodes with retry mechanisms for LLM-heavy operations
     extract_data = ExtractVideoDataNode()
-    extract_topics = ExtractTopicsNode()
-    process_topics = ProcessTopicsBatch()
+    extract_topics = ExtractTopicsNode(max_retries=3, wait=5)  # Retry with 5s wait
+    process_topics = ProcessTopicsBatch(max_retries=3, wait=5)  # Retry with 5s wait
     combine_results = CombineResults()
     generate_html = GenerateHTMLNode()
     
